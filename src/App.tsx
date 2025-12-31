@@ -10,6 +10,7 @@
 // import InputRefAsProp, { Input } from "./components/ref/RefAsProp";
 // export const UserContext = React.createContext("test");
 
+import UseFormStatusHook from "./components/useFormStatus/UseFormStatusHook";
 import UseHook, { BeforUseHook } from "./components/useHook/UseHook";
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
       {/* <UseHook /> */}
       {/* <BeforUseHook /> */}
       {/* <Reducer /> */}
+      <UseFormStatusHook />
     </>
   );
 }
