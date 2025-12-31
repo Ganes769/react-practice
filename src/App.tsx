@@ -12,6 +12,7 @@
 
 import UseFormStatusHook from "./components/useFormStatus/UseFormStatusHook";
 import UseHook, { BeforUseHook } from "./components/useHook/UseHook";
+import Optimistic from "./components/useOptimistic";
 
 function App() {
   // const ref = useRef(null);
@@ -34,7 +35,8 @@ function App() {
       {/* <UseHook /> */}
       {/* <BeforUseHook /> */}
       {/* <Reducer /> */}
-      <UseFormStatusHook />
+      {/* <UseFormStatusHook /> */}
+      <Optimistic />
     </>
   );
 }
