@@ -11,6 +11,9 @@
 // export const UserContext = React.createContext("test");
 
 import ObjectUseState from "./components/objectUseState/ObjectUseState";
+import Child from "./components/ParentandChild/Child";
+import GrandParent from "./components/ParentandChild/GrandParent";
+import Parent from "./components/ParentandChild/Parent";
 import UseFormStatusHook from "./components/useFormStatus/UseFormStatusHook";
 import UseHook, { BeforUseHook } from "./components/useHook/UseHook";
 import Optimistic from "./components/useOptimistic";
@@ -39,7 +42,15 @@ function App() {
       {/* <UseFormStatusHook /> */}
       {/* <Optimistic /> */}
       {/* <UseReducer /> */}
-      <ObjectUseState />
+      {/* <ObjectUseState /> */}
+      // * By using children prop we can pass the child component to the parent
+      //*component only the parent component will render when the parent is
+      rendered.
+      <GrandParent>
+        <Parent>
+          <Child />
+        </Parent>
+      </GrandParent>
     </>
   );
 }
