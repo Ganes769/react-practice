@@ -10,10 +10,11 @@
 // import InputRefAsProp, { Input } from "./components/ref/RefAsProp";
 // export const UserContext = React.createContext("test");
 
+import ObjectUseState from "./components/objectUseState/ObjectUseState";
 import UseFormStatusHook from "./components/useFormStatus/UseFormStatusHook";
 import UseHook, { BeforUseHook } from "./components/useHook/UseHook";
 import Optimistic from "./components/useOptimistic";
-
+import UseReducer from "./components/useReducer/UseReducer";
 function App() {
   // const ref = useRef(null);
   // const ref2 = useRef(null);
@@ -36,7 +37,9 @@ function App() {
       {/* <BeforUseHook /> */}
       {/* <Reducer /> */}
       {/* <UseFormStatusHook /> */}
-      <Optimistic />
+      {/* <Optimistic /> */}
+      {/* <UseReducer /> */}
+      <ObjectUseState />
     </>
   );
 }
