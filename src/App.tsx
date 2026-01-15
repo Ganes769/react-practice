@@ -18,6 +18,7 @@ import UseFormStatusHook from "./components/useFormStatus/UseFormStatusHook";
 import UseHook, { BeforUseHook } from "./components/useHook/UseHook";
 import Optimistic from "./components/useOptimistic";
 import UseReducer from "./components/useReducer/UseReducer";
+import BinarySearch from "./DSA/BinarySearch";
 function App() {
   // const ref = useRef(null);
   // const ref2 = useRef(null);
@@ -43,14 +44,15 @@ function App() {
       {/* <Optimistic /> */}
       {/* <UseReducer /> */}
       {/* <ObjectUseState /> */}
-      // * By using children prop we can pass the child component to the parent
-      //*component only the parent component will render when the parent is
-      rendered.
-      <GrandParent>
+      {/* * By using children prop we can pass the child component to the parent
+      component only the parent component will render when the parent is
+      rendered. */}
+      {/* <GrandParent>
         <Parent>
           <Child />
         </Parent>
-      </GrandParent>
+      </GrandParent> */}
+      <BinarySearch />
     </>
   );
 }
