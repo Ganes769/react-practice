@@ -19,6 +19,11 @@ import UseHook, { BeforUseHook } from "./components/useHook/UseHook";
 import Optimistic from "./components/useOptimistic";
 import UseReducer from "./components/useReducer/UseReducer";
 import BinarySearch from "./DSA/BinarySearch";
+import BubbleSort from "./DSA/BubbleSort";
+import InsertionSort from "./DSA/InsertionSort";
+import MergeSort from "./DSA/MergeSort";
+import SelectionSort from "./DSA/SelectionSort";
+import TimeComplexity from "./DSA/TimeComplexity";
 function App() {
   // const ref = useRef(null);
   // const ref2 = useRef(null);
@@ -52,7 +57,12 @@ function App() {
           <Child />
         </Parent>
       </GrandParent> */}
+      <TimeComplexity />
       <BinarySearch />
+      <SelectionSort />
+      <BubbleSort />
+      <MergeSort />
+      <InsertionSort />
     </>
   );
 }
