@@ -38,12 +38,46 @@ class SinglyLinkedList {
 
     let prev: Node = this.head;
     for (let i = 0; i < index - 1; i++) {
-      // index is in-range, so prev.next must exist before we finish loop
       prev = prev.next as Node;
     }
     const node: Node = { value, next: prev.next };
     prev.next = node;
     this.size++;
+  }
+
+  deleteAtIndex(index: number): boolean {
+    if (!this.head || index < 0 || index >= this.size) {
+      return false;
+    }
+
+    // Delete head
+    if (index === 0) {
+      this.head = this.head.next;
+      if (!this.head) {
+        this.tail = null;
+      }
+      this.size--;
+      return true;
+    }
+
+    // Find the node before the one to delete
+    let prev: Node = this.head;
+    for (let i = 0; i < index - 1; i++) {
+      prev = prev.next as Node;
+    }
+
+    // Delete the node
+    if (prev.next) {
+      prev.next = prev.next.next;
+      // Update tail if we deleted the last node
+      if (!prev.next) {
+        this.tail = prev;
+      }
+      this.size--;
+      return true;
+    }
+
+    return false;
   }
 
   toArray(): number[] {
@@ -64,6 +98,7 @@ export default function LinkedList() {
   const [tailValue, setTailValue] = useState("");
   const [indexValue, setIndexValue] = useState("");
   const [indexToInsert, setIndexToInsert] = useState("");
+  const [indexToDelete, setIndexToDelete] = useState("");
 
   const [listView, setListView] = useState<number[]>([]);
   const [message, setMessage] = useState("");
@@ -117,12 +152,26 @@ export default function LinkedList() {
     refresh("Inserted at index (O(n))");
   };
 
+  const handleDeleteAtIndex = () => {
+    const idx = parseIndex(indexToDelete);
+    if (idx === null) return alert("Please enter a valid index (integer)");
+    if (idx < 0) return alert("Index must be non-negative");
+    
+    const success = listRef.current.deleteAtIndex(idx);
+    if (!success) {
+      return alert(`Cannot delete at index ${idx}. Index out of bounds or list is empty.`);
+    }
+    setIndexToDelete("");
+    refresh(`Deleted at index ${idx} (O(n))`);
+  };
+
   const handleReset = () => {
     listRef.current = new SinglyLinkedList();
     setHeadValue("");
     setTailValue("");
     setIndexValue("");
     setIndexToInsert("");
+    setIndexToDelete("");
     setListView([]);
     setMessage("Reset list");
   };
@@ -241,6 +290,34 @@ export default function LinkedList() {
             }}
           >
             Reset
+          </button>
+        </div>
+
+        <div style={{ marginBottom: "10px" }}>
+          <label style={{ display: "block", marginBottom: "5px" }}>
+            Delete at index:
+          </label>
+          <input
+            type="text"
+            value={indexToDelete}
+            onChange={(e) => setIndexToDelete(e.target.value)}
+            placeholder="index (e.g., 1)"
+            style={{ padding: "10px", fontSize: "16px", width: "300px" }}
+          />
+          <button
+            onClick={handleDeleteAtIndex}
+            style={{
+              marginLeft: "10px",
+              padding: "10px 16px",
+              fontSize: "16px",
+              backgroundColor: "#f44336",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Delete at index
           </button>
         </div>
       </div>
