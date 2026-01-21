@@ -62,6 +62,21 @@ class MyLinkedlist {
       this.head = this.head.next;
     }
   }
+  hasCycle(head) {
+    let current = head;
+    let seenNodes = new Set();
+    while (current) {
+      if (seenNodes.has(current)) {
+        console.log("linked list has cycle");
+
+        return true;
+      }
+      seenNodes.add(curr);
+      current = current.next;
+    }
+    console.log("linked list has no cycle");
+    return false;
+  }
 }
 
 class NewNode {
@@ -70,3 +85,7 @@ class NewNode {
     this.next = null;
   }
 }
+n1.next = n2;
+n2.next = n3;
+n3.next = n4;
+n4.next = n3;

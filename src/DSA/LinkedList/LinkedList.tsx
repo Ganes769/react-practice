@@ -80,12 +80,63 @@ class SinglyLinkedList {
     return false;
   }
 
+  hasCycle(): boolean {
+    if (!this.head || !this.head.next) {
+      return false;
+    }
+
+    // Floyd's cycle detection algorithm (tortoise and hare)
+    let slow: Node | null = this.head;
+    let fast: Node | null = this.head;
+
+    while (fast && fast.next) {
+      slow = slow!.next;
+      fast = fast.next.next;
+      if (slow === fast) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  createCycleAt(index: number): boolean {
+    if (!this.head || !this.tail) {
+      return false;
+    }
+
+    if (index < 0 || index >= this.size) {
+      return false;
+    }
+
+    // Find the node at the given index
+    let target: Node = this.head;
+    for (let i = 0; i < index; i++) {
+      if (!target.next) return false;
+      target = target.next;
+    }
+
+    // Point tail to the target node to create a cycle
+    this.tail.next = target;
+    return true;
+  }
+
   toArray(): number[] {
     const out: number[] = [];
     let cur = this.head;
-    while (cur) {
+    const visited = new Set<Node>();
+    let count = 0;
+    const maxNodes = 100; // Prevent infinite loops in display
+
+    while (cur && count < maxNodes) {
+      if (visited.has(cur)) {
+        out.push(`[CYCLE: ${cur.value}]`);
+        break;
+      }
+      visited.add(cur);
       out.push(cur.value);
       cur = cur.next;
+      count++;
     }
     return out;
   }
@@ -99,6 +150,8 @@ export default function LinkedList() {
   const [indexValue, setIndexValue] = useState("");
   const [indexToInsert, setIndexToInsert] = useState("");
   const [indexToDelete, setIndexToDelete] = useState("");
+  const [cycleIndex, setCycleIndex] = useState("");
+  const [hasCycleResult, setHasCycleResult] = useState<boolean | null>(null);
 
   const [listView, setListView] = useState<number[]>([]);
   const [message, setMessage] = useState("");
@@ -165,6 +218,26 @@ export default function LinkedList() {
     refresh(`Deleted at index ${idx} (O(n))`);
   };
 
+  const handleCreateCycle = () => {
+    const idx = parseIndex(cycleIndex);
+    if (idx === null) return alert("Please enter a valid index (integer)");
+    if (idx < 0) return alert("Index must be non-negative");
+    
+    const success = listRef.current.createCycleAt(idx);
+    if (!success) {
+      return alert(`Cannot create cycle at index ${idx}. Index out of bounds or list is empty.`);
+    }
+    setCycleIndex("");
+    refresh(`Cycle created: tail points to node at index ${idx}`);
+  };
+
+  const handleCheckCycle = () => {
+    const hasCycle = listRef.current.hasCycle();
+    setHasCycleResult(hasCycle);
+    setMessage(hasCycle ? "Cycle detected! (O(n) time, O(1) space)" : "No cycle detected (O(n) time, O(1) space)");
+    setListView(listRef.current.toArray());
+  };
+
   const handleReset = () => {
     listRef.current = new SinglyLinkedList();
     setHeadValue("");
@@ -172,6 +245,8 @@ export default function LinkedList() {
     setIndexValue("");
     setIndexToInsert("");
     setIndexToDelete("");
+    setCycleIndex("");
+    setHasCycleResult(null);
     setListView([]);
     setMessage("Reset list");
   };
@@ -319,6 +394,66 @@ export default function LinkedList() {
           >
             Delete at index
           </button>
+        </div>
+
+        <div style={{ marginBottom: "10px" }}>
+          <label style={{ display: "block", marginBottom: "5px" }}>
+            Create cycle (point tail to index):
+          </label>
+          <input
+            type="text"
+            value={cycleIndex}
+            onChange={(e) => setCycleIndex(e.target.value)}
+            placeholder="index (e.g., 0)"
+            style={{ padding: "10px", fontSize: "16px", width: "300px" }}
+          />
+          <button
+            onClick={handleCreateCycle}
+            style={{
+              marginLeft: "10px",
+              padding: "10px 16px",
+              fontSize: "16px",
+              backgroundColor: "#9c27b0",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Create Cycle
+          </button>
+        </div>
+
+        <div style={{ marginBottom: "10px" }}>
+          <button
+            onClick={handleCheckCycle}
+            style={{
+              padding: "10px 16px",
+              fontSize: "16px",
+              backgroundColor: "#00bcd4",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Check for Cycle
+          </button>
+          {hasCycleResult !== null && (
+            <span
+              style={{
+                marginLeft: "15px",
+                padding: "8px 12px",
+                fontSize: "16px",
+                fontWeight: "bold",
+                backgroundColor: hasCycleResult ? "#ffebee" : "#e8f5e9",
+                color: hasCycleResult ? "#c62828" : "#2e7d32",
+                borderRadius: "4px",
+              }}
+            >
+              {hasCycleResult ? "✓ Cycle Detected" : "✗ No Cycle"}
+            </span>
+          )}
         </div>
       </div>
 
