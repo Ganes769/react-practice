@@ -62,6 +62,44 @@ class BinaryTree {
     traverse(this.root);
     return ans;
   }
+
+  hasPathSum(totalSum: number): boolean {
+    let ans = false;
+    const traverse = (curr: TreeNode | null, currSum: number) => {
+      if (!curr) return;
+      const newSum = currSum + curr.value;
+      if (!curr.left && !curr.right) {
+        if (newSum === totalSum) {
+          ans = true;
+          return;
+        }
+      }
+      if (curr.left) traverse(curr.left, newSum);
+      if (curr.right) traverse(curr.right, newSum);
+    };
+    traverse(this.root, 0);
+    return ans;
+  }
+
+  getPathSum(totalSum: number): number[] | null {
+    let path: number[] | null = null;
+    const traverse = (curr: TreeNode | null, currSum: number, currentPath: number[]) => {
+      if (!curr || path !== null) return;
+      const newSum = currSum + curr.value;
+      const newPath = [...currentPath, curr.value];
+      
+      if (!curr.left && !curr.right) {
+        if (newSum === totalSum) {
+          path = newPath;
+          return;
+        }
+      }
+      if (curr.left) traverse(curr.left, newSum, newPath);
+      if (curr.right) traverse(curr.right, newSum, newPath);
+    };
+    traverse(this.root, 0, []);
+    return path;
+  }
 }
 
 // Build the tree from tree.js:
@@ -85,6 +123,9 @@ export default function Trees() {
   const [traversalSequence, setTraversalSequence] = useState<number[]>([]);
   const [currentNode, setCurrentNode] = useState<number | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [pathSumInput, setPathSumInput] = useState<string>("");
+  const [pathSumResult, setPathSumResult] = useState<boolean | null>(null);
+  const [pathSumPath, setPathSumPath] = useState<number[] | null>(null);
 
   useEffect(() => {
     updateTraversalSequence();
@@ -159,6 +200,26 @@ export default function Trees() {
     }
   };
 
+  const checkPathSum = (sum: number) => {
+    const result = tree.hasPathSum(sum);
+    const path = tree.getPathSum(sum);
+    setPathSumResult(result);
+    setPathSumPath(path);
+  };
+
+  const handlePathSumSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const sum = parseInt(pathSumInput);
+    if (!isNaN(sum)) {
+      checkPathSum(sum);
+    }
+  };
+
+  const testPathSum = (sum: number) => {
+    setPathSumInput(sum.toString());
+    checkPathSum(sum);
+  };
+
   const TreeNodeComponent = ({
     node,
     level = 0,
@@ -169,23 +230,24 @@ export default function Trees() {
     if (!node) return null;
 
     const isHighlighted = currentNode === node.value;
+    const isPathNode = pathSumPath?.includes(node.value) ?? false;
 
     return (
       <div className="tree-node-wrapper">
-        <div className={`tree-node ${isHighlighted ? "highlighted" : ""}`}>
+        <div className={`tree-node ${isHighlighted ? "highlighted" : ""} ${isPathNode ? "path-node" : ""}`}>
           {node.value}
         </div>
         {(node.left || node.right) && (
           <div className="tree-children">
             {node.left && (
               <div className="tree-child">
-                <div className="tree-line"></div>
+                <div className={`tree-line ${isPathNode && pathSumPath?.includes(node.left.value) ? "path-line" : ""}`}></div>
                 <TreeNodeComponent node={node.left} level={level + 1} />
               </div>
             )}
             {node.right && (
               <div className="tree-child">
-                <div className="tree-line"></div>
+                <div className={`tree-line ${isPathNode && pathSumPath?.includes(node.right.value) ? "path-line" : ""}`}></div>
                 <TreeNodeComponent node={node.right} level={level + 1} />
               </div>
             )}
@@ -257,6 +319,91 @@ export default function Trees() {
             {getTraversalExplanation()}
           </p>
         </div>
+      </div>
+
+      <div className="path-sum-section">
+        <h2>Path Sum Checker</h2>
+        <p className="path-sum-description">
+          Check if there exists a root-to-leaf path where the sum of node values equals the target sum.
+        </p>
+        
+        <form onSubmit={handlePathSumSubmit} className="path-sum-form">
+          <div className="input-group">
+            <input
+              type="number"
+              value={pathSumInput}
+              onChange={(e) => setPathSumInput(e.target.value)}
+              placeholder="Enter target sum"
+              className="path-sum-input"
+            />
+            <button type="submit" className="check-button">
+              Check Path Sum
+            </button>
+          </div>
+        </form>
+
+        <div className="test-cases">
+          <h3>Quick Test Cases:</h3>
+          <div className="test-buttons">
+            <button 
+              onClick={() => testPathSum(7)} 
+              className="test-button true-case"
+              title="Path: 1→2→4 = 7"
+            >
+              Test: 7 (TRUE)
+            </button>
+            <button 
+              onClick={() => testPathSum(10)} 
+              className="test-button true-case"
+              title="Path: 1→3→6 = 10"
+            >
+              Test: 10 (TRUE)
+            </button>
+            <button 
+              onClick={() => testPathSum(11)} 
+              className="test-button true-case"
+              title="Path: 1→3→7 = 11"
+            >
+              Test: 11 (TRUE)
+            </button>
+            <button 
+              onClick={() => testPathSum(8)} 
+              className="test-button true-case"
+              title="Path: 1→2→5 = 8"
+            >
+              Test: 8 (TRUE)
+            </button>
+            <button 
+              onClick={() => testPathSum(9)} 
+              className="test-button false-case"
+            >
+              Test: 9 (FALSE)
+            </button>
+            <button 
+              onClick={() => testPathSum(12)} 
+              className="test-button false-case"
+            >
+              Test: 12 (FALSE)
+            </button>
+          </div>
+        </div>
+
+        {pathSumResult !== null && (
+          <div className={`path-sum-result ${pathSumResult ? "result-true" : "result-false"}`}>
+            <h3>
+              {pathSumResult ? "✓ Path Found!" : "✗ No Path Found"}
+            </h3>
+            {pathSumResult && pathSumPath && (
+              <div className="path-display">
+                <p>Path: {pathSumPath.join(" → ")}</p>
+                <p>Sum: {pathSumPath.reduce((a, b) => a + b, 0)}</p>
+              </div>
+            )}
+            {!pathSumResult && (
+              <p>No root-to-leaf path exists with sum {pathSumInput}</p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

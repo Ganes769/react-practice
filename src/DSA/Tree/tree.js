@@ -49,6 +49,35 @@ class BinaryTree {
     console.log(ans);
     return ans;
   }
+  findMaximunDepth() {
+    let maxDepth = 0;
+    let traverse = (curr, depth) => {
+      maxDepth = Math.max(maxDepth, depth);
+      curr.left && traverse(curr.left, depth + 1);
+      curr.right && traverse(curr.right, depth + 1);
+    };
+    traverse(root, 1);
+    console.log("maxiumum depth of tree is ", maxDepth);
+    return maxDepth;
+  }
+  hasPathSum(totalSum) {
+    let ans = false;
+    let traverse = (curr, currSum) => {
+      let newsum = currSum + curr.value;
+      if (!curr.left && !curr.right) {
+        if (newsum === totalSum) {
+          ans = ans || true;
+          return ans;
+        }
+      }
+
+      curr.left && traverse(curr.left, newsum);
+      curr.right && traverse(curr.right, newsum);
+    };
+    traverse(root, 0);
+    console.log(`Tree has a sum ${totalSum} ${ans}`);
+    return ans;
+  }
 }
 
 // Build a 3-level tree:
