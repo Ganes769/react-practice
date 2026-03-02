@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import "./HeapVisualizer.css";
 
 class MinHeap {
@@ -49,6 +49,78 @@ class MinHeap {
   }
 }
 
+// ── Heap Sort helpers ──────────────────────────────────────────────────────
+
+type SortStep = {
+  arr: number[];
+  swapped: [number, number] | null;
+  heapSize: number;
+  phase: "build" | "extract";
+  description: string;
+};
+
+function heapifyDownSort(
+  arr: number[],
+  i: number,
+  n: number,
+  steps: SortStep[],
+  phase: "build" | "extract"
+) {
+  let largest = i;
+  const left = 2 * i + 1;
+  const right = 2 * i + 2;
+
+  if (left < n && arr[left] > arr[largest]) largest = left;
+  if (right < n && arr[right] > arr[largest]) largest = right;
+
+  if (largest !== i) {
+    [arr[i], arr[largest]] = [arr[largest], arr[i]];
+    steps.push({
+      arr: [...arr],
+      swapped: [i, largest],
+      heapSize: n,
+      phase,
+      description:
+        phase === "build"
+          ? `Build Max-Heap: swap index ${i} (${arr[largest]}) ↔ index ${largest} (${arr[i]})`
+          : `Extract: swap root (${arr[largest]}) ↔ index ${i} (${arr[i]}), heapify down`,
+    });
+    heapifyDownSort(arr, largest, n, steps, phase);
+  }
+}
+
+function generateSortSteps(input: number[]): SortStep[] {
+  const arr = [...input];
+  const steps: SortStep[] = [];
+  const n = arr.length;
+
+  steps.push({ arr: [...arr], swapped: null, heapSize: n, phase: "build", description: "Initial array" });
+
+  // Phase 1: Build max-heap
+  for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+    heapifyDownSort(arr, i, n, steps, "build");
+  }
+  steps.push({ arr: [...arr], swapped: null, heapSize: n, phase: "build", description: "Max-Heap built — root is the largest element" });
+
+  // Phase 2: Extract elements
+  for (let i = n - 1; i > 0; i--) {
+    [arr[0], arr[i]] = [arr[i], arr[0]];
+    steps.push({
+      arr: [...arr],
+      swapped: [0, i],
+      heapSize: i,
+      phase: "extract",
+      description: `Move max (${arr[i]}) to sorted position [${i}]`,
+    });
+    heapifyDownSort(arr, 0, i, steps, "extract");
+  }
+
+  steps.push({ arr: [...arr], swapped: null, heapSize: 0, phase: "extract", description: "Array fully sorted!" });
+  return steps;
+}
+
+// ── End Heap Sort helpers ──────────────────────────────────────────────────
+
 const initialHeap = new MinHeap();
 
 export default function HeapVisualizer() {
@@ -59,6 +131,47 @@ export default function HeapVisualizer() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [lastInserted, setLastInserted] = useState<number | null>(null);
   const [message, setMessage] = useState("");
+
+  // ── Heap Sort state ──
+  const [sortInput, setSortInput] = useState("64 34 25 12 22 11 90");
+  const [sortSteps, setSortSteps] = useState<SortStep[]>([]);
+  const [sortStepIdx, setSortStepIdx] = useState<number | null>(null);
+  const [isSortAnimating, setIsSortAnimating] = useState(false);
+  const sortIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const currentSortStep = sortStepIdx !== null ? sortSteps[sortStepIdx] : null;
+
+  const handleStartSort = () => {
+    const nums = sortInput
+      .split(/[\s,]+/)
+      .map(Number)
+      .filter((n) => !isNaN(n));
+    if (nums.length < 2) return;
+
+    const steps = generateSortSteps(nums);
+    setSortSteps(steps);
+    setSortStepIdx(0);
+    setIsSortAnimating(true);
+
+    let idx = 0;
+    sortIntervalRef.current = setInterval(() => {
+      idx++;
+      if (idx < steps.length) {
+        setSortStepIdx(idx);
+      } else {
+        clearInterval(sortIntervalRef.current!);
+        setIsSortAnimating(false);
+        setSortStepIdx(steps.length - 1);
+      }
+    }, 600);
+  };
+
+  const handleSortReset = () => {
+    if (sortIntervalRef.current) clearInterval(sortIntervalRef.current);
+    setSortSteps([]);
+    setSortStepIdx(null);
+    setIsSortAnimating(false);
+  };
 
   const displayHeap = currentStep !== null ? animationSteps[currentStep].heap : heapInstance.heap;
   const swapped = currentStep !== null ? animationSteps[currentStep].swapped : null;
@@ -225,6 +338,90 @@ export default function HeapVisualizer() {
           <li>If it's smaller than the parent, <strong>swap</strong> them</li>
           <li>Repeat until the heap property is restored or you reach the root</li>
         </ol>
+      </div>
+
+      {/* ── Heap Sort Section ── */}
+      <div className="sort-section">
+        <h2>Heap Sort Visualizer</h2>
+        <p className="sort-subtitle">
+          Heap Sort works in two phases: <strong>Build Max-Heap</strong> then <strong>repeatedly extract</strong> the max to sort in-place. Time: O(n log n).
+        </p>
+
+        <div className="sort-controls">
+          <input
+            className="heap-input sort-input"
+            value={sortInput}
+            onChange={(e) => setSortInput(e.target.value)}
+            placeholder="e.g. 64 34 25 12 22"
+            disabled={isSortAnimating}
+          />
+          <button
+            className="insert-btn"
+            onClick={handleStartSort}
+            disabled={isSortAnimating}
+          >
+            {isSortAnimating ? "Sorting..." : "Sort"}
+          </button>
+          <button
+            className="reset-btn"
+            onClick={handleSortReset}
+            disabled={isSortAnimating}
+          >
+            Reset
+          </button>
+        </div>
+
+        {currentSortStep && (
+          <>
+            <div className={`sort-phase-badge ${currentSortStep.phase}`}>
+              {currentSortStep.phase === "build" ? "Phase 1: Build Max-Heap" : "Phase 2: Extract & Sort"}
+            </div>
+
+            <div className="sort-array">
+              {currentSortStep.arr.map((val, idx) => {
+                const isSwapped =
+                  currentSortStep.swapped !== null &&
+                  (currentSortStep.swapped[0] === idx || currentSortStep.swapped[1] === idx);
+                const isSorted = idx >= currentSortStep.heapSize;
+                const isRoot = idx === 0 && currentSortStep.heapSize > 1;
+
+                return (
+                  <div
+                    key={idx}
+                    className={`sort-bar-wrapper`}
+                  >
+                    <div
+                      className={`sort-bar ${isSwapped ? "sort-swapped" : ""} ${isSorted ? "sort-done" : ""} ${isRoot ? "sort-root" : ""}`}
+                      style={{ height: `${Math.max(val / Math.max(...currentSortStep.arr), 0.05) * 140 + 20}px` }}
+                    >
+                      <span className="sort-bar-val">{val}</span>
+                    </div>
+                    <span className="sort-bar-idx">[{idx}]</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className={`sort-step-desc ${currentSortStep.phase}`}>
+              {currentSortStep.description}
+            </div>
+
+            <div className="sort-progress">
+              Step {(sortStepIdx ?? 0) + 1} / {sortSteps.length}
+            </div>
+          </>
+        )}
+
+        <div className="heap-explainer sort-explainer">
+          <h2>How Heap Sort Works</h2>
+          <ol>
+            <li><strong>Build Max-Heap:</strong> Rearrange the array so every parent ≥ its children</li>
+            <li><strong>Extract max:</strong> Swap the root (max) with the last element</li>
+            <li><strong>Shrink heap:</strong> Reduce heap size by 1 (last element is now sorted)</li>
+            <li><strong>Heapify down:</strong> Restore max-heap property from the root</li>
+            <li>Repeat steps 2–4 until heap size = 1</li>
+          </ol>
+        </div>
       </div>
     </div>
   );

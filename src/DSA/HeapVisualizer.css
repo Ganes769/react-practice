@@ -316,6 +316,163 @@
   color: #e67e22;
 }
 
+/* ── Heap Sort Section ── */
+.sort-section {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.sort-section h2 {
+  color: #444;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 0.5rem;
+}
+
+.sort-subtitle {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+.sort-subtitle strong {
+  color: #6c5ce7;
+}
+
+.sort-controls {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.sort-input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.sort-phase-badge {
+  display: inline-block;
+  padding: 0.35rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  letter-spacing: 0.02em;
+}
+
+.sort-phase-badge.build {
+  background: #e3f2fd;
+  color: #1565c0;
+  border: 1.5px solid #90caf9;
+}
+
+.sort-phase-badge.extract {
+  background: #f3e5f5;
+  color: #6a1b9a;
+  border: 1.5px solid #ce93d8;
+}
+
+.sort-array {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.6rem;
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.25rem 1rem 0.5rem;
+  margin-bottom: 1rem;
+  min-height: 200px;
+  flex-wrap: wrap;
+}
+
+.sort-bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.sort-bar {
+  width: 48px;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, #a29bfe 0%, #6c5ce7 100%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 6px;
+  transition: all 0.35s ease;
+  position: relative;
+}
+
+.sort-bar.sort-swapped {
+  background: linear-gradient(180deg, #fd79a8 0%, #e84393 100%);
+  transform: scaleY(1.06);
+  box-shadow: 0 4px 14px rgba(232, 67, 147, 0.45);
+  animation: sortSwap 0.4s ease;
+}
+
+.sort-bar.sort-done {
+  background: linear-gradient(180deg, #55efc4 0%, #00b894 100%);
+}
+
+.sort-bar.sort-root {
+  box-shadow: 0 0 0 3px #fdcb6e;
+}
+
+@keyframes sortSwap {
+  0%, 100% { transform: scaleY(1.06); }
+  50%       { transform: scaleY(1.12); }
+}
+
+.sort-bar-val {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.sort-bar-idx {
+  font-size: 0.65rem;
+  color: #999;
+}
+
+.sort-step-desc {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 0.6rem;
+}
+
+.sort-step-desc.build {
+  background: #e3f2fd;
+  color: #1565c0;
+  border-left: 4px solid #1565c0;
+}
+
+.sort-step-desc.extract {
+  background: #f3e5f5;
+  color: #6a1b9a;
+  border-left: 4px solid #6a1b9a;
+}
+
+.sort-progress {
+  font-size: 0.8rem;
+  color: #aaa;
+  margin-bottom: 1.25rem;
+}
+
+.sort-explainer {
+  margin-top: 1.5rem;
+  box-shadow: none;
+  padding: 0;
+  background: transparent;
+}
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
   .heap-level {
