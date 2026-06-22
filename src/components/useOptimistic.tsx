@@ -15,12 +15,12 @@ const Optimistic = () => {
         sending: true,
         key: Date.now(),
       },
-    ]
+    ],
   );
 
   async function sendFormData(formData: FormData) {
     const sentMessage = await fakeDelayAction(
-      String(formData.get("username") ?? "")
+      String(formData.get("username") ?? ""),
     );
     setMessages((prev) => [
       ...prev,
