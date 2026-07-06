@@ -25,7 +25,7 @@ async function fetchUser() {
 const userPromise = fetchUser();
 
 export default function UseHookTest() {
-  const user = use(userPromise);
+const user = use(userPromise);
 
   return (
     <div>
