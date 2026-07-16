@@ -1,65 +1,114 @@
-class Node:
-    def __init__(self, value):
-        self.value = value
-        self.left = None
-        self.right = None
+from dataclasses import dataclass
 
 
-def print_tree(root):
-    def _display_aux(node):
-        if node.right is None and node.left is None:
-            line = str(node.value)
-            width = len(line)
-            height = 1
-            middle = width // 2
-            return [line], width, height, middle
-
-        if node.right is None:
-            lines, n, p, x = _display_aux(node.left)
-            s = str(node.value)
-            u = len(s)
-            first_line = (x + 1) * " " + (n - x - 1) * "_" + s
-            second_line = x * " " + "/" + (n - x - 1 + u) * " "
-            shifted_lines = [line + u * " " for line in lines]
-            return [first_line, second_line] + shifted_lines, n + u, p + 2, n + u // 2
-
-        if node.left is None:
-            lines, n, p, x = _display_aux(node.right)
-            s = str(node.value)
-            u = len(s)
-            first_line = s + x * "_" + (n - x) * " "
-            second_line = (u + x) * " " + "\\" + (n - x - 1) * " "
-            shifted_lines = [u * " " + line for line in lines]
-            return [first_line, second_line] + shifted_lines, n + u, p + 2, u // 2
-
-        left, n, p, x = _display_aux(node.left)
-        right, m, q, y = _display_aux(node.right)
-        s = str(node.value)
-        u = len(s)
-
-        first_line = (x + 1) * " " + (n - x - 1) * "_" + s + y * "_" + (m - y) * " "
-        second_line = x * " " + "/" + (n - x - 1 + u + y) * " " + "\\" + (m - y - 1) * " "
-
-        if p < q:
-            left += [" " * n] * (q - p)
-        elif q < p:
-            right += [" " * m] * (p - q)
-
-        lines = [a + u * " " + b for a, b in zip(left, right)]
-        return [first_line, second_line] + lines, n + m + u, max(p, q) + 2, n + u // 2
-
-    lines, _, _, _ = _display_aux(root)
-    for line in lines:
-        print(line)
+@dataclass
+class TreeNode:
+    value: int
+    left: "TreeNode | None" = None
+    right: "TreeNode | None" = None
 
 
-# Example
-root = Node(1)
-root.left = Node(2)
-root.right = Node(3)
-root.left.left = Node(4)
-root.left.right = Node(5)
-root.right.left = Node(6)
-root.right.right = Node(7)
+class BinarySearchTree:
+    """Binary search tree with insert, search, delete, and traversal methods."""
 
-print_tree(root)
+    def __init__(self) -> None:
+        self.root: TreeNode | None = None
+
+    def insert(self, value: int) -> None:
+        self.root = self._insert(self.root, value)
+
+    def _insert(self, node: TreeNode | None, value: int) -> TreeNode:
+        if node is None:
+            return TreeNode(value)
+
+        if value < node.value:
+            node.left = self._insert(node.left, value)
+        elif value > node.value:
+            node.right = self._insert(node.right, value)
+
+        return node
+
+    def search(self, value: int) -> bool:
+        current = self.root
+        while current is not None:
+            if value == current.value:
+                return True
+            if value < current.value:
+                current = current.left
+            else:
+                current = current.right
+        return False
+
+    def delete(self, value: int) -> None:
+        self.root = self._delete(self.root, value)
+
+    def _delete(self, node: TreeNode | None, value: int) -> TreeNode | None:
+        if node is None:
+            return None
+
+        if value < node.value:
+            node.left = self._delete(node.left, value)
+        elif value > node.value:
+            node.right = self._delete(node.right, value)
+        else:
+            if node.left is None:
+                return node.right
+            if node.right is None:
+                return node.left
+
+            successor = self._min_node(node.right)
+            node.value = successor.value
+            node.right = self._delete(node.right, successor.value)
+
+        return node
+
+    def inorder(self) -> list[int]:
+        result: list[int] = []
+        self._inorder(self.root, result)
+        return result
+
+    def preorder(self) -> list[int]:
+        result: list[int] = []
+        self._preorder(self.root, result)
+        return result
+
+    def postorder(self) -> list[int]:
+        result: list[int] = []
+        self._postorder(self.root, result)
+        return result
+
+    def _inorder(self, node: TreeNode | None, result: list[int]) -> None:
+        if node is None:
+            return
+        self._inorder(node.left, result)
+        result.append(node.value)
+        self._inorder(node.right, result)
+
+    def _preorder(self, node: TreeNode | None, result: list[int]) -> None:
+        if node is None:
+            return
+        result.append(node.value)
+        self._preorder(node.left, result)
+        self._preorder(node.right, result)
+
+    def _postorder(self, node: TreeNode | None, result: list[int]) -> None:
+        if node is None:
+            return
+        self._postorder(node.left, result)
+        self._postorder(node.right, result)
+        result.append(node.value)
+
+    def _min_node(self, node: TreeNode) -> TreeNode:
+        current = node
+        while current.left is not None:
+            current = current.left
+        return current
+
+
+if __name__ == "__main__":
+    tree = BinarySearchTree()
+    for number in [50, 30, 70, 20, 40, 60, 80]:
+        tree.insert(number)
+
+    print(tree.inorder())
+    print(tree.search(60))

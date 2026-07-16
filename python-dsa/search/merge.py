@@ -1,30 +1,39 @@
-import math
+from typing import TypeVar
 
 
-def mergesort(arr):
-    if len(arr) <= 1:
-        return arr 
-    n=len(arr)
-    mid=math.floor(n)//2
-    left=mergesort(arr[:mid])
-    right=mergesort(arr[mid:])
-    return merge(left,right)
+T = TypeVar("T")
 
-def merge(left,right):
-    result=[]
-    i=j=0
-    while(i<len(left) and j<len(right)):
-        if(left[i]<right[j]):
+
+def merge_sort(items: list[T]) -> list[T]:
+    """Return a sorted copy of items using merge sort."""
+    if len(items) <= 1:
+        return items.copy()
+
+    middle = len(items) // 2
+    left = merge_sort(items[:middle])
+    right = merge_sort(items[middle:])
+    return merge(left, right)
+
+
+def merge(left: list[T], right: list[T]) -> list[T]:
+    """Merge two sorted lists into one sorted list."""
+    result: list[T] = []
+    i = 0
+    j = 0
+
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
             result.append(left[i])
-            i=i+1
-
+            i += 1
         else:
             result.append(right[j])
-            j=j+1
-        result.extend(left[i:])
-        result.extend(right[j:])
-        return result
-arr=[1,4,5,2,10,22]
-res=mergesort(arr)
-print("sorted array",res)
+            j += 1
 
+    result.extend(left[i:])
+    result.extend(right[j:])
+    return result
+
+
+if __name__ == "__main__":
+    numbers = [1, 4, 5, 2, 10, 22]
+    print(merge_sort(numbers))
